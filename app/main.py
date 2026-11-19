@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.api.routes.events import router as events_router
 from app.api.routes.health import router as health_router
+from app.core.logging_config import setup_logging
 from app.infrastructure.scheduler.scheduler import (
     start_scheduler,
     stop_scheduler,
@@ -18,6 +19,8 @@ async def lifespan(app: FastAPI):
 
     stop_scheduler()
 
+
+setup_logging()
 
 app = FastAPI(
     title="Events Aggregator",

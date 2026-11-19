@@ -9,7 +9,7 @@ DOTENV = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     database_url: str
-    test_database_url: str
+    test_database_url: str | None = None
 
     sync_interval_minutes: int = Field(default=10, ge=1)
     external_api_url: str
