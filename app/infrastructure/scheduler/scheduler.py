@@ -2,9 +2,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.application.services.event_sync_service import EventSyncService
 from app.core.config import settings
-from app.infrastructure.clients.external_api_client import (
-    ExternalAPIClient,
-)
+from app.infrastructure.clients.external_api_client import ExternalAPIClient
 from app.infrastructure.database import async_session_factory
 from app.infrastructure.scheduler.jobs import sync_events_job
 from app.infrastructure.unit_of_work import SQLAlchemyUnitOfWork
@@ -22,9 +20,6 @@ def create_sync_service() -> EventSyncService:
     )
 
 
-scheduler = AsyncIOScheduler()
-
-
 async def scheduled_sync() -> None:
     sync_service = create_sync_service()
 
@@ -34,7 +29,19 @@ async def scheduled_sync() -> None:
         await sync_service.api_client.close()
 
 
+scheduler = AsyncIOScheduler()
+
+
 def start_scheduler() -> None:
+    # Первая синхронизация сразу после запуска приложения.
+    scheduler.add_job(
+        scheduled_sync,
+        trigger="date",
+        id="events_sync_initial",
+        replace_existing=True,
+    )
+
+    # Последующие синхронизации по расписанию.
     scheduler.add_job(
         scheduled_sync,
         trigger="interval",
@@ -45,7 +52,8 @@ def start_scheduler() -> None:
         coalesce=True,
     )
 
-    scheduler.start()
+    if not scheduler.running:
+        scheduler.start()
 
 
 def stop_scheduler() -> None:

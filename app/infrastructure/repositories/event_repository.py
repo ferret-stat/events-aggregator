@@ -1,3 +1,4 @@
+from datetime import UTC, date, datetime, time
 from uuid import UUID
 
 from sqlalchemy import select
@@ -64,6 +65,7 @@ class PostgreSQLEventRepository(EventRepository):
         self,
         limit: int = 100,
         offset: int = 0,
+        date_from: date | None = None,
     ) -> list[Event]:
         stmt = (
             select(EventModel)
@@ -72,6 +74,14 @@ class PostgreSQLEventRepository(EventRepository):
             .limit(limit)
             .offset(offset)
         )
+
+        if date_from is not None:
+            start_datetime = datetime.combine(
+                date_from,
+                time.min,
+                tzinfo=UTC,
+            )
+            stmt = stmt.where(EventModel.event_time >= start_datetime)
 
         result = await self.session.execute(stmt)
         models = result.scalars().all()

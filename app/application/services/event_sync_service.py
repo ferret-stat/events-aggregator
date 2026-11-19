@@ -1,6 +1,7 @@
 import logging
 from datetime import UTC, datetime
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from app.application.services.event_mapper import map_event
 from app.infrastructure.clients.external_api_client import ExternalAPIClient
@@ -8,6 +9,15 @@ from app.infrastructure.clients.external_api_client import ExternalAPIClient
 logger = logging.getLogger(__name__)
 
 INITIAL_CHANGED_AT = "2000-01-01"
+
+
+def normalize_pagination_url(url: str) -> str:
+    parsed = urlsplit(url)
+
+    if parsed.scheme == "http":
+        parsed = parsed._replace(scheme="https")
+
+    return urlunsplit(parsed)
 
 
 class EventSyncService:
@@ -57,7 +67,9 @@ class EventSyncService:
             # Получаем все страницы внешнего API.
             while True:
                 if next_url:
-                    response = await self.api_client.get(next_url)
+                    response = await self.api_client.get(
+                        normalize_pagination_url(next_url)
+                    )
                 else:
                     response = await self.api_client.get(
                         "/api/events/",

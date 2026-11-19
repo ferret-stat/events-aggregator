@@ -8,7 +8,12 @@ class FakeRepository:
     def __init__(self, events: list[Event]):
         self.events = events
 
-    async def get_all(self, limit=100, offset=0):
+    async def get_all(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        date_from=None,
+    ):
         return self.events[offset : offset + limit]
 
 

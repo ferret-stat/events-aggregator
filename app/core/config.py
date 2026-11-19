@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     external_api_key: str | None = None
 
     sync_interval_minutes: int = Field(default=10, ge=1)
+    seats_cache_ttl_seconds: int = Field(default=30, ge=1)
 
 
 settings = Settings()

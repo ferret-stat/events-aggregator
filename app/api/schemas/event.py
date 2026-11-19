@@ -23,5 +23,5 @@ class EventResponse(BaseModel):
 
 class EventListResponse(BaseModel):
     items: list[EventResponse]
-    limit: int
-    offset: int
+    page: int
+    page_size: int

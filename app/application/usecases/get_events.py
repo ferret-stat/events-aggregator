@@ -1,3 +1,5 @@
+from datetime import date
+
 from app.domain.entities.event import Event
 from app.domain.unit_of_work import UnitOfWork
 
@@ -10,6 +12,7 @@ class GetEventsUseCase:
         self,
         limit: int = 100,
         offset: int = 0,
+        date_from: date | None = None,
     ) -> list[Event]:
         if not 1 <= limit <= 500:
             raise ValueError("Limit must be between 1 and 500")
@@ -21,6 +24,7 @@ class GetEventsUseCase:
             events = await self.uow.events.get_all(
                 limit=limit,
                 offset=offset,
+                date_from=date_from,
             )
 
         return events

@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Protocol
 from uuid import UUID
 
@@ -13,6 +14,7 @@ class EventRepository(Protocol):
         self,
         limit: int = 100,
         offset: int = 0,
+        date_from: date | None = None,
     ) -> list[Event]: ...
 
     async def upsert(self, event: Event) -> Event: ...
