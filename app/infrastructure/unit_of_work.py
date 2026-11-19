@@ -6,6 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.infrastructure.repositories.event_repository import (
     PostgreSQLEventRepository,
 )
+from app.infrastructure.repositories.sync_metadata_repository import (
+    PostgreSQLSyncMetadataRepository,
+)
 
 
 class SQLAlchemyUnitOfWork:
@@ -21,6 +24,7 @@ class SQLAlchemyUnitOfWork:
         await self.session.begin()
 
         self.events = PostgreSQLEventRepository(self.session)
+        self.sync_metadata = PostgreSQLSyncMetadataRepository(self.session)
 
         return self
 

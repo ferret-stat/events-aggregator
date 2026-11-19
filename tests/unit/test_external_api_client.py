@@ -1,6 +1,7 @@
 import httpx
 import pytest
 
+from app.core.config import settings
 from app.infrastructure.clients.external_api_client import (
     ExternalAPIClient,
     ExternalAPIError,
@@ -15,11 +16,11 @@ async def test_get_request():
             json={"id": 1, "name": "Test Event"},
         )
 
-    client = ExternalAPIClient("https://example.com")
+    client = ExternalAPIClient(settings.external_api_url)
     await client._client.aclose()
 
     client._client = httpx.AsyncClient(
-        base_url="https://example.com",
+        base_url=settings.external_api_url,
         transport=httpx.MockTransport(handler),
     )
 
@@ -36,11 +37,11 @@ async def test_get_request_http_error():
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(404)
 
-    client = ExternalAPIClient("https://example.com")
+    client = ExternalAPIClient(settings.external_api_url)
     await client._client.aclose()
 
     client._client = httpx.AsyncClient(
-        base_url="https://example.com",
+        base_url=settings.external_api_url,
         transport=httpx.MockTransport(handler),
     )
 
@@ -58,11 +59,11 @@ async def test_post_request():
             json={"id": 10, "status": "created"},
         )
 
-    client = ExternalAPIClient("https://example.com")
+    client = ExternalAPIClient(settings.external_api_url)
     await client._client.aclose()
 
     client._client = httpx.AsyncClient(
-        base_url="https://example.com",
+        base_url=settings.external_api_url,
         transport=httpx.MockTransport(handler),
     )
 
