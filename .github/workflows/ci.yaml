@@ -36,6 +36,7 @@ jobs:
     env:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/events_aggregator_test
       TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/events_aggregator_test
+      EXTERNAL_API_URL: https://example.com
 
     steps:
       - name: Checkout repository
