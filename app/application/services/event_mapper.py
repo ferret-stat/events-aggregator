@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from app.domain.entities.event import Event
@@ -9,7 +10,7 @@ def parse_datetime(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def map_event(data: dict) -> Event:
+def map_event(data: dict[str, Any]) -> Event:
     place_data = data["place"]
 
     place = Place(
