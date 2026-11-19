@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -101,3 +102,59 @@ class PostgreSQLEventRepository(EventRepository):
             created_at=model.created_at,
             status_changed_at=model.status_changed_at,
         )
+
+    async def upsert(self, event: Event) -> Event:
+        # Сначала создаём или обновляем место.
+        place_data = {
+            "id": event.place.id,
+            "name": event.place.name,
+            "city": event.place.city,
+            "address": event.place.address,
+            "seats_pattern": event.place.seats_pattern,
+            "changed_at": event.place.changed_at,
+            "created_at": event.place.created_at,
+        }
+
+        place_stmt = insert(PlaceModel).values(**place_data)
+
+        place_stmt = place_stmt.on_conflict_do_update(
+            index_elements=[PlaceModel.id],
+            set_={key: value for key, value in place_data.items() if key != "id"},
+        )
+
+        await self.session.execute(place_stmt)
+
+        # Затем создаём или обновляем мероприятие.
+        event_data = {
+            "id": event.id,
+            "name": event.name,
+            "place_id": event.place.id,
+            "event_time": event.event_time,
+            "registration_deadline": event.registration_deadline,
+            "status": event.status,
+            "number_of_visitors": event.number_of_visitors,
+            "changed_at": event.changed_at,
+            "created_at": event.created_at,
+            "status_changed_at": event.status_changed_at,
+        }
+
+        event_stmt = insert(EventModel).values(**event_data)
+
+        event_stmt = event_stmt.on_conflict_do_update(
+            index_elements=[EventModel.id],
+            set_={key: value for key, value in event_data.items() if key != "id"},
+        )
+
+        await self.session.execute(event_stmt)
+
+        # Загружаем ORM-модель вместе с Place.
+        query = (
+            select(EventModel)
+            .options(selectinload(EventModel.place))
+            .where(EventModel.id == event.id)
+        )
+
+        result = await self.session.execute(query)
+        model = result.scalar_one()
+
+        return self._to_entity(model)
