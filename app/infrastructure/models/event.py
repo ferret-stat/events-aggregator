@@ -1,54 +1,55 @@
-from datetime import UTC, datetime
-from uuid import UUID, uuid4
+from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database import Base
-
-
-def utc_now() -> datetime:
-    return datetime.now(UTC)
+from app.infrastructure.models.place import PlaceModel
 
 
 class EventModel(Base):
     __tablename__ = "events"
 
-    __table_args__ = (UniqueConstraint("provider_id", name="uq_events_provider_id"),)
+    __table_args__ = (
+        Index("ix_events_changed_at", "changed_at"),
+        Index("ix_events_event_time", "event_time"),
+        Index("ix_events_status_event_time", "status", "event_time"),
+    )
 
     id: Mapped[UUID] = mapped_column(
         primary_key=True,
-        default=uuid4,
     )
 
-    provider_id: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-    )
-
-    title: Mapped[str] = mapped_column(
+    name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
     )
 
-    description: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True,
+    place_id: Mapped[UUID] = mapped_column(
+        ForeignKey("places.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+
+    event_time: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+
+    registration_deadline: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
     )
 
     status: Mapped[str] = mapped_column(
-        String(30),
+        String(50),
         nullable=False,
     )
 
-    starts_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
+    number_of_visitors: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
-    )
-
-    ends_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True),
-        nullable=True,
+        default=0,
     )
 
     changed_at: Mapped[datetime] = mapped_column(
@@ -58,13 +59,15 @@ class EventModel(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=utc_now,
         nullable=False,
     )
 
-    updated_at: Mapped[datetime] = mapped_column(
+    status_changed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=utc_now,
-        onupdate=utc_now,
         nullable=False,
+    )
+
+    place: Mapped["PlaceModel"] = relationship(
+        "PlaceModel",
+        back_populates="events",
     )
