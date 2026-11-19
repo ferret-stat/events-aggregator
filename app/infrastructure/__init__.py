@@ -1,2 +1,3 @@
-def main() -> None:
-    print("Hello from events-aggregator!")
+from app.infrastructure.models.event import EventModel
+
+__all__ = ["EventModel"]
