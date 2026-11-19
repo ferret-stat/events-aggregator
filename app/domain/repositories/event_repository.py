@@ -9,4 +9,8 @@ class EventRepository(Protocol):
 
     async def create(self, event: Event) -> Event: ...
 
-    async def get_all(self, limit: int = 100, offset: int = 0) -> list[Event]: ...
+    async def get_all(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[Event]: ...

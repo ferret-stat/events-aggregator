@@ -16,4 +16,4 @@ class Event:
     number_of_visitors: int
     changed_at: datetime
     created_at: datetime
-    status_changed_at: datetime
+    status_changed_at: datetime | None = None
