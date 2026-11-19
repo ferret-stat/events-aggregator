@@ -5,6 +5,7 @@ description = "Events aggregator backend service"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "apscheduler>=3.10,<4.0",
     "fastapi>=0.165.0",
     "httpx>=0.28.1",
     "pydantic-settings>=2.16.3",
