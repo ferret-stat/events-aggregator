@@ -6,6 +6,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import settings
 from app.infrastructure.database import Base
+from app.infrastructure.models.event import EventModel  # noqa: F401
+from app.infrastructure.models.place import PlaceModel  # noqa: F401
+from app.infrastructure.models.ticket import TicketModel  # noqa: F401
+
+target_metadata = Base.metadata
 
 config = context.config
 
@@ -62,3 +67,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+

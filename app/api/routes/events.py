@@ -18,6 +18,7 @@ from app.application.usecases.get_event_seats import (
     GetEventSeatsUseCase,
 )
 from app.application.usecases.get_events import GetEventsUseCase
+from app.infrastructure.clients.external_api_client import ExternalAPIError
 
 router = APIRouter(
     prefix="/events",
@@ -100,6 +101,11 @@ async def get_event_seats(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),
+        ) from exc
+    except ExternalAPIError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="External events provider is unavailable",
         ) from exc
 
     return EventSeatsResponse(seats=seats)

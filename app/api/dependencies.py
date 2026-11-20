@@ -6,6 +6,7 @@ from fastapi import Depends
 from app.application.usecases.get_event import GetEventUseCase
 from app.application.usecases.get_event_seats import GetEventSeatsUseCase
 from app.application.usecases.get_events import GetEventsUseCase
+from app.application.usecases.register_ticket import RegisterTicketUseCase
 from app.core.config import settings
 from app.infrastructure.cache.ttl_cache import TTLCache
 from app.infrastructure.clients.external_api_client import ExternalAPIClient
@@ -56,6 +57,16 @@ def get_event_seats_use_case(
 ) -> GetEventSeatsUseCase:
     return GetEventSeatsUseCase(
         event_use_case=event_use_case,
+        api_client=api_client,
+        cache=seats_cache,
+    )
+
+def get_register_ticket_use_case(
+    uow: Annotated[SQLAlchemyUnitOfWork, Depends(get_uow)],
+    api_client: Annotated[ExternalAPIClient, Depends(get_external_api_client)],
+) -> RegisterTicketUseCase:
+    return RegisterTicketUseCase(
+        uow=uow,
         api_client=api_client,
         cache=seats_cache,
     )

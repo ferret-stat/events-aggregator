@@ -9,6 +9,9 @@ from app.infrastructure.repositories.event_repository import (
 from app.infrastructure.repositories.sync_metadata_repository import (
     PostgreSQLSyncMetadataRepository,
 )
+from app.infrastructure.repositories.ticket_repository import (
+    PostgreSQLTicketRepository,
+)
 
 
 class SQLAlchemyUnitOfWork:
@@ -25,6 +28,7 @@ class SQLAlchemyUnitOfWork:
 
         self.events = PostgreSQLEventRepository(self.session)
         self.sync_metadata = PostgreSQLSyncMetadataRepository(self.session)
+        self.tickets = PostgreSQLTicketRepository(self.session)
 
         return self
 

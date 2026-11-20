@@ -29,3 +29,6 @@ class TTLCache(Generic[T]):
             value,
             datetime.now(UTC) + self.ttl,
         )
+
+    def delete(self, key: UUID) -> None:
+        self._data.pop(key, None)

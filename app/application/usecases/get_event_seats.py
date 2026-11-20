@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from app.application.usecases.get_event import GetEventUseCase
+from app.infrastructure.cache.ttl_cache import TTLCache
 from app.infrastructure.clients.external_api_client import ExternalAPIClient
 
 
@@ -17,7 +18,7 @@ class GetEventSeatsUseCase:
         self,
         event_use_case: GetEventUseCase,
         api_client: ExternalAPIClient,
-        cache,
+        cache: TTLCache[list[str]],
     ) -> None:
         self.event_use_case = event_use_case
         self.api_client = api_client
@@ -40,6 +41,7 @@ class GetEventSeatsUseCase:
             return cached_seats
 
         seats = await self.api_client.get_seats(event_id)
+
         self.cache.set(event_id, seats)
 
         return seats
