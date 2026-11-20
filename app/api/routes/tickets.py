@@ -37,12 +37,6 @@ router = APIRouter(
     response_model=TicketResponse,
     status_code=status.HTTP_201_CREATED,
 )
-@router.post(
-    "/",
-    response_model=TicketResponse,
-    status_code=status.HTTP_201_CREATED,
-    include_in_schema=False,
-)
 async def register_ticket(
     payload: TicketCreateRequest,
     use_case: Annotated[
