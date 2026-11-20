@@ -82,6 +82,8 @@ async def test_register_ticket_event_not_published(
     register_dependencies,
 ):
     use_case, uow, api_client, cache = register_dependencies
+
+    sample_event.registration_deadline = datetime.now(UTC) + timedelta(days=1)
     uow.events.get_by_id.return_value = sample_event
 
     with pytest.raises(EventNotPublishedError):

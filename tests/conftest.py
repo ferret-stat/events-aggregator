@@ -1,5 +1,5 @@
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
@@ -7,6 +7,7 @@ import pytest
 from app.domain.entities.event import Event
 from app.domain.entities.place import Place
 from app.domain.entities.ticket import Ticket
+from app.domain.enums import EventStatus
 
 
 @pytest.fixture
@@ -34,7 +35,7 @@ def sample_event(sample_place: Place) -> Event:
         place=sample_place,
         event_time=now,
         registration_deadline=now,
-        status="active",
+        status=EventStatus.PUBLISHED,
         number_of_visitors=100,
         changed_at=now,
         created_at=now,
@@ -50,7 +51,7 @@ def published_event(sample_event):
         sample_event,
         status="published",
         event_time=now + timedelta(days=7),
-        registration_deadline=now + timedelta(days=3),
+        registration_deadline=datetime.now(timezone.utc) + timedelta(days=1),
     )
 
 

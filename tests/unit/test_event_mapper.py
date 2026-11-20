@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.application.services.event_mapper import map_event
+from app.domain.enums import EventStatus
 
 
 def test_map_event():
@@ -12,7 +13,7 @@ def test_map_event():
         "name": "Python Conference",
         "event_time": "2026-12-01T10:00:00+00:00",
         "registration_deadline": "2026-11-30T20:00:00+00:00",
-        "status": "active",
+        "status": EventStatus.PUBLISHED,
         "number_of_visitors": 100,
         "changed_at": "2026-11-19T10:00:00+00:00",
         "created_at": "2026-11-18T10:00:00+00:00",
