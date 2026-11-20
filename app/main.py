@@ -36,12 +36,12 @@ app = FastAPI(
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
-    status_code = (
-        400 if request.method == "POST" and request.url.path == "/api/tickets" else 422
+    is_ticket_registration = (
+        request.method == "POST" and request.url.path.rstrip("/") == "/api/tickets"
     )
 
     return JSONResponse(
-        status_code=status_code,
+        status_code=400 if is_ticket_registration else 422,
         content={"detail": exc.errors()},
     )
 

@@ -78,15 +78,15 @@ class RegisterTicketUseCase:
 
         raw_ticket_id = response.get("ticket_id")
 
+        if not raw_ticket_id:
+            raise ExternalAPIError("External API response does not contain ticket_id")
+
         try:
             ticket_id = UUID(str(raw_ticket_id))
         except (ValueError, TypeError, AttributeError) as exc:
             raise ExternalAPIError(
                 "External API returned an invalid ticket ID"
             ) from exc
-
-        if raw_ticket_id is None:
-            raise ExternalAPIError("External API response does not contain ticket_id")
 
         ticket = Ticket(
             id=ticket_id,
