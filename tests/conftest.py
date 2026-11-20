@@ -1,10 +1,12 @@
-from datetime import UTC, datetime
+from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
 
 from app.domain.entities.event import Event
 from app.domain.entities.place import Place
+from app.domain.entities.ticket import Ticket
 
 
 @pytest.fixture
@@ -37,4 +39,30 @@ def sample_event(sample_place: Place) -> Event:
         changed_at=now,
         created_at=now,
         status_changed_at=now,
+    )
+
+
+@pytest.fixture
+def published_event(sample_event):
+    now = datetime.now(UTC)
+
+    return replace(
+        sample_event,
+        status="published",
+        event_time=now + timedelta(days=7),
+        registration_deadline=now + timedelta(days=3),
+    )
+
+
+@pytest.fixture
+def sample_ticket(published_event):
+    return Ticket(
+        id=uuid4(),
+        event_id=published_event.id,
+        first_name="Ivan",
+        last_name="Ivanov",
+        email="ivan@example.com",
+        seat="A1",
+        created_at=datetime.now(UTC),
+        cancelled_at=None,
     )

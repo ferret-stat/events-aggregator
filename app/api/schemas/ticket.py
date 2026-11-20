@@ -31,4 +31,3 @@ class TicketResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     ticket_id: UUID
-

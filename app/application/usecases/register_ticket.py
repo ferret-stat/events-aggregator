@@ -86,9 +86,7 @@ class RegisterTicketUseCase:
             ) from exc
 
         if raw_ticket_id is None:
-            raise ExternalAPIError(
-                "External API response does not contain ticket_id"
-            )
+            raise ExternalAPIError("External API response does not contain ticket_id")
 
         ticket = Ticket(
             id=ticket_id,
@@ -106,4 +104,3 @@ class RegisterTicketUseCase:
         self.cache.delete(event_id)
 
         return ticket_id
-

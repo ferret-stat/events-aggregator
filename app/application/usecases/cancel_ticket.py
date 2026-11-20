@@ -1,4 +1,3 @@
-
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -45,9 +44,7 @@ class CancelTicketUseCase:
                 raise TicketNotFoundError("Ticket not found")
 
             if ticket.cancelled_at is not None:
-                raise TicketAlreadyCancelledError(
-                    "Ticket has already been cancelled"
-                )
+                raise TicketAlreadyCancelledError("Ticket has already been cancelled")
 
             event = await self.uow.events.get_by_id(ticket.event_id)
 
@@ -64,9 +61,7 @@ class CancelTicketUseCase:
         response = await self.api_client.unregister(event_id, ticket_id)
 
         if response.get("success") is not True:
-            raise ExternalAPIError(
-                "External API did not confirm cancellation"
-            )
+            raise ExternalAPIError("External API did not confirm cancellation")
 
         async with self.uow:
             ticket = await self.uow.tickets.get_by_id(ticket_id)
@@ -75,12 +70,9 @@ class CancelTicketUseCase:
                 raise TicketNotFoundError("Ticket not found")
 
             if ticket.cancelled_at is not None:
-                raise TicketAlreadyCancelledError(
-                    "Ticket has already been cancelled"
-                )
+                raise TicketAlreadyCancelledError("Ticket has already been cancelled")
 
             ticket.cancelled_at = datetime.now(UTC)
             await self.uow.tickets.update(ticket)
 
         self.cache.delete(event_id)
-
