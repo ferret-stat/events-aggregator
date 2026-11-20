@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-
+from app.domain.enums import EventStatus
 import pytest
 
 from app.application.usecases.register_ticket import (
@@ -84,6 +84,8 @@ async def test_register_ticket_event_not_published(
     use_case, uow, api_client, cache = register_dependencies
 
     sample_event.registration_deadline = datetime.now(UTC) + timedelta(days=1)
+    sample_event.status = EventStatus.REGISTRATION_CLOSED
+
     uow.events.get_by_id.return_value = sample_event
 
     with pytest.raises(EventNotPublishedError):
