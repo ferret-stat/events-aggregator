@@ -33,9 +33,15 @@ router = APIRouter(
 
 
 @router.post(
+    "",
+    response_model=TicketResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+@router.post(
     "/",
     response_model=TicketResponse,
     status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
 )
 async def register_ticket(
     payload: TicketCreateRequest,
@@ -69,31 +75,31 @@ async def register_ticket(
     return TicketResponse(ticket_id=ticket_id)
 
 
-@router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{ticket_id}",
+    status_code=status.HTTP_200_OK,
+)
 async def cancel_ticket(
     ticket_id: UUID,
     use_case: Annotated[
         CancelTicketUseCase,
         Depends(get_cancel_ticket_use_case),
     ],
-) -> None:
+) -> dict[str, bool]:
     try:
         await use_case.execute(ticket_id)
-
     except TicketNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-
     except EventNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-
     except TicketAlreadyCancelledError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-
     except EventAlreadyStartedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-
     except ExternalAPIError as exc:
         raise HTTPException(
             status_code=502,
             detail="External events provider is unavailable",
         ) from exc
+
+    return {"success": True}
