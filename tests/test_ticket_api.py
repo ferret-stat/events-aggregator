@@ -68,7 +68,7 @@ def test_register_ticket_success(client, register_mock, ticket_payload):
     ticket_id = uuid4()
     register_mock.execute.return_value = ticket_id
 
-    response = client.post("/api/tickets/", json=ticket_payload)
+    response = client.post("/api/tickets", json=ticket_payload)
 
     assert response.status_code == 201
     assert response.json() == {"ticket_id": str(ticket_id)}
@@ -82,9 +82,9 @@ def test_register_ticket_invalid_email(
 ):
     ticket_payload["email"] = "invalid-email"
 
-    response = client.post("/api/tickets/", json=ticket_payload)
+    response = client.post("/api/tickets", json=ticket_payload)
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     register_mock.execute.assert_not_awaited()
 
 
@@ -95,9 +95,9 @@ def test_register_ticket_empty_name(
 ):
     ticket_payload["first_name"] = ""
 
-    response = client.post("/api/tickets/", json=ticket_payload)
+    response = client.post("/api/tickets", json=ticket_payload)
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     register_mock.execute.assert_not_awaited()
 
 
@@ -108,9 +108,9 @@ def test_register_ticket_invalid_event_id(
 ):
     ticket_payload["event_id"] = "not-a-uuid"
 
-    response = client.post("/api/tickets/", json=ticket_payload)
+    response = client.post("/api/tickets", json=ticket_payload)
 
-    assert response.status_code == 422
+    assert response.status_code == 400
     register_mock.execute.assert_not_awaited()
 
 
@@ -136,7 +136,7 @@ def test_register_ticket_errors(
 ):
     register_mock.execute.side_effect = exception
 
-    response = client.post("/api/tickets/", json=ticket_payload)
+    response = client.post("/api/tickets", json=ticket_payload)
 
     assert response.status_code == expected_status
 
