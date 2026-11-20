@@ -12,9 +12,11 @@ class EventRepository(Protocol):
 
     async def get_all(
         self,
-        limit: int = 100,
+        limit: int = 20,
         offset: int = 0,
         date_from: date | None = None,
     ) -> list[Event]: ...
+
+    async def count(self, date_from: date | None = None) -> int: ...
 
     async def upsert(self, event: Event) -> Event: ...

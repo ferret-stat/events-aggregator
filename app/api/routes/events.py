@@ -1,8 +1,9 @@
 from datetime import date
 from typing import Annotated
+from urllib.parse import urlencode
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from app.api.dependencies import (
     get_event_seats_use_case,
@@ -27,31 +28,58 @@ router = APIRouter(
 
 
 @router.get(
-    "/",
+    "",
     response_model=EventListResponse,
     status_code=status.HTTP_200_OK,
 )
+@router.get(
+    "/",
+    response_model=EventListResponse,
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+)
 async def get_events(
+    request: Request,
     use_case: Annotated[
         GetEventsUseCase,
         Depends(get_events_use_case),
     ],
     date_from: Annotated[date | None, Query()] = None,
     page: Annotated[int, Query(ge=1)] = 1,
-    page_size: Annotated[int, Query(ge=1, le=500)] = 100,
+    page_size: Annotated[int, Query(ge=1, le=500)] = 20,
 ) -> EventListResponse:
     offset = (page - 1) * page_size
 
-    events = await use_case.execute(
+    events, count = await use_case.execute_paginated(
         limit=page_size,
         offset=offset,
         date_from=date_from,
     )
 
+    def make_url(target_page: int) -> str:
+        params = {
+            "page": target_page,
+            "page_size": page_size,
+        }
+
+        if date_from is not None:
+            params["date_from"] = date_from.isoformat()
+
+        return str(
+            request.url.replace(
+                query=urlencode(params),
+            )
+        )
+
+    next_url = make_url(page + 1) if offset + len(events) < count else None
+
+    previous_url = make_url(page - 1) if page > 1 and count > 0 else None
+
     return EventListResponse(
-        items=[EventResponse.model_validate(event) for event in events],
-        page=page,
-        page_size=page_size,
+        count=count,
+        next=next_url,
+        previous=previous_url,
+        results=[EventResponse.model_validate(event) for event in events],
     )
 
 

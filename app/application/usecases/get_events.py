@@ -21,10 +21,30 @@ class GetEventsUseCase:
             raise ValueError("Offset cannot be negative")
 
         async with self.uow:
-            events = await self.uow.events.get_all(
+            return await self.uow.events.get_all(
                 limit=limit,
                 offset=offset,
                 date_from=date_from,
             )
 
-        return events
+    async def execute_paginated(
+        self,
+        limit: int = 20,
+        offset: int = 0,
+        date_from: date | None = None,
+    ) -> tuple[list[Event], int]:
+        if not 1 <= limit <= 500:
+            raise ValueError("Limit must be between 1 and 500")
+
+        if offset < 0:
+            raise ValueError("Offset cannot be negative")
+
+        async with self.uow:
+            events = await self.uow.events.get_all(
+                limit=limit,
+                offset=offset,
+                date_from=date_from,
+            )
+            count = await self.uow.events.count(date_from=date_from)
+
+        return events, count

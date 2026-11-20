@@ -22,6 +22,7 @@ class EventResponse(BaseModel):
 
 
 class EventListResponse(BaseModel):
-    items: list[EventResponse]
-    page: int
-    page_size: int
+    count: int
+    next: str | None
+    previous: str | None
+    results: list[EventResponse]

@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime, time
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -63,7 +63,7 @@ class PostgreSQLEventRepository(EventRepository):
 
     async def get_all(
         self,
-        limit: int = 100,
+        limit: int = 20,
         offset: int = 0,
         date_from: date | None = None,
     ) -> list[Event]:
@@ -168,3 +168,17 @@ class PostgreSQLEventRepository(EventRepository):
         model = result.scalar_one()
 
         return self._to_entity(model)
+
+    async def count(self, date_from: date | None = None) -> int:
+        stmt = select(func.count()).select_from(EventModel)
+
+        if date_from is not None:
+            start_datetime = datetime.combine(
+                date_from,
+                time.min,
+                tzinfo=UTC,
+            )
+            stmt = stmt.where(EventModel.event_time >= start_datetime)
+
+        result = await self.session.execute(stmt)
+        return result.scalar_one()
