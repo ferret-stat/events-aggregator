@@ -107,9 +107,15 @@ async def get_event(
 
 
 @router.get(
+    "/{event_id}/seats",
+    response_model=EventSeatsResponse,
+    status_code=status.HTTP_200_OK,
+)
+@router.get(
     "/{event_id}/seats/",
     response_model=EventSeatsResponse,
     status_code=status.HTTP_200_OK,
+    include_in_schema=False,
 )
 async def get_event_seats(
     event_id: UUID,
