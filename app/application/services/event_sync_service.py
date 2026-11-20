@@ -4,6 +4,7 @@ from typing import Any
 
 from app.application.services.event_mapper import map_event
 from app.application.services.events_paginator import EventsPaginator
+from app.domain.enums import SyncStatus
 from app.infrastructure.clients.external_api_client import ExternalAPIClient
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class EventSyncService:
             await uow.sync_metadata.save(
                 last_sync_time=metadata.last_sync_time if metadata else None,
                 last_changed_at=metadata.last_changed_at if metadata else None,
-                sync_status="failed",
+                sync_status=SyncStatus.FAILED,
                 last_error=str(error)[:2000],
             )
 
@@ -71,7 +72,7 @@ class EventSyncService:
                 await uow.sync_metadata.save(
                     last_sync_time=datetime.now(UTC),
                     last_changed_at=latest_changed_at,
-                    sync_status="success",
+                    sync_status=SyncStatus.SUCCESS,
                     last_error=None,
                 )
 

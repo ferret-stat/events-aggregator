@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from app.domain.entities.ticket import Ticket
+from app.domain.enums import EventStatus
 from app.domain.unit_of_work import UnitOfWork
 from app.infrastructure.cache.ttl_cache import TTLCache
 from app.infrastructure.clients.external_api_client import (
@@ -51,7 +52,7 @@ class RegisterTicketUseCase:
             if event is None:
                 raise EventNotFoundError("Event not found")
 
-            if event.status != "published":
+            if event.status != EventStatus.PUBLISHED:
                 raise EventNotPublishedError("Event is not published")
 
             now = datetime.now(UTC)

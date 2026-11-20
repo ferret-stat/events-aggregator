@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from app.api.schemas.place import PlaceResponse
+from app.domain.enums import EventStatus
 
 
 class EventResponse(BaseModel):
@@ -14,7 +15,7 @@ class EventResponse(BaseModel):
     place: PlaceResponse
     event_time: datetime
     registration_deadline: datetime
-    status: str
+    status: EventStatus
     number_of_visitors: int
     changed_at: datetime
     created_at: datetime

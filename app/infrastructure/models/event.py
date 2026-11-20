@@ -2,8 +2,10 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.domain.enums import EventStatus
 from app.infrastructure.database import Base
 from app.infrastructure.models.place import PlaceModel
 
@@ -41,8 +43,13 @@ class EventModel(Base):
         nullable=False,
     )
 
-    status: Mapped[str] = mapped_column(
-        String(50),
+    status: Mapped[EventStatus] = mapped_column(
+        SQLAlchemyEnum(
+            EventStatus,
+            native_enum=False,
+            values_callable=lambda enum_cls: [item.value for item in enum_cls],
+            length=50,
+        ),
         nullable=False,
     )
 

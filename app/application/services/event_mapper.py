@@ -4,6 +4,7 @@ from uuid import UUID
 
 from app.domain.entities.event import Event
 from app.domain.entities.place import Place
+from app.domain.enums import EventStatus
 
 
 def parse_datetime(value: str) -> datetime:
@@ -29,7 +30,7 @@ def map_event(data: dict[str, Any]) -> Event:
         place=place,
         event_time=parse_datetime(data["event_time"]),
         registration_deadline=parse_datetime(data["registration_deadline"]),
-        status=data["status"],
+        status=EventStatus(data["status"]),
         number_of_visitors=data["number_of_visitors"],
         changed_at=parse_datetime(data["changed_at"]),
         created_at=parse_datetime(data["created_at"]),

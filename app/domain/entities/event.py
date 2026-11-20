@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.domain.entities.place import Place
+from app.domain.enums import EventStatus
 
 
 @dataclass
@@ -12,7 +13,7 @@ class Event:
     place: Place
     event_time: datetime
     registration_deadline: datetime
-    status: str
+    status: EventStatus
     number_of_visitors: int
     changed_at: datetime
     created_at: datetime

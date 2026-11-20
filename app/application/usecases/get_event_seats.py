@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from app.application.usecases.get_event import GetEventUseCase
+from app.domain.enums import EventStatus
 from app.infrastructure.cache.ttl_cache import TTLCache
 from app.infrastructure.clients.external_api_client import ExternalAPIClient
 
@@ -30,7 +31,7 @@ class GetEventSeatsUseCase:
         if event is None:
             raise EventNotFoundError("Event not found")
 
-        if event.status != "published":
+        if event.status != EventStatus.PUBLISHED:
             raise EventNotPublishedError(
                 "Seats are available only for published events"
             )
