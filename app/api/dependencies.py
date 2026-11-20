@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.application.services.event_sync_service import EventSyncService
 from app.application.usecases.cancel_ticket import CancelTicketUseCase
 from app.application.usecases.get_event import GetEventUseCase
 from app.application.usecases.get_event_seats import GetEventSeatsUseCase
@@ -82,4 +83,16 @@ def get_cancel_ticket_use_case(
         uow=uow,
         api_client=api_client,
         cache=seats_cache,
+    )
+
+
+def get_event_sync_service(
+    api_client: Annotated[
+        ExternalAPIClient,
+        Depends(get_external_api_client),
+    ],
+) -> EventSyncService:
+    return EventSyncService(
+        api_client=api_client,
+        uow_factory=lambda: SQLAlchemyUnitOfWork(async_session_factory),
     )
