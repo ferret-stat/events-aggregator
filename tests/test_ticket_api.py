@@ -149,8 +149,8 @@ def test_cancel_ticket_success(client, cancel_mock):
 
     response = client.delete(f"/api/tickets/{ticket_id}")
 
-    assert response.status_code == 204
-    assert response.content == b""
+    assert response.status_code == 200
+    assert response.json() == {"success": True}
     cancel_mock.execute.assert_awaited_once_with(ticket_id)
 
 

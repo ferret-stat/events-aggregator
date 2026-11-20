@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.infrastructure.database import Base
 from app.infrastructure.models.event import EventModel  # noqa: F401
 from app.infrastructure.models.place import PlaceModel  # noqa: F401
+from app.infrastructure.models.sync_metadata import SyncMetadataModel  # noqa: F401
 from app.infrastructure.models.ticket import TicketModel  # noqa: F401
 
 target_metadata = Base.metadata
