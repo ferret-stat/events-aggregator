@@ -48,3 +48,15 @@ class PostgreSQLTicketRepository(TicketRepository):
             created_at=model.created_at,
             cancelled_at=model.cancelled_at,
         )
+
+    async def update(self, ticket: Ticket) -> Ticket:
+        model = await self.session.get(TicketModel, ticket.id)
+
+        if model is None:
+            raise ValueError("Ticket not found")
+
+        model.cancelled_at = ticket.cancelled_at
+
+        await self.session.flush()
+
+        return self._to_entity(model)

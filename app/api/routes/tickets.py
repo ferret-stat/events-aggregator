@@ -1,11 +1,24 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.dependencies import get_register_ticket_use_case
+from app.api.dependencies import (
+    get_cancel_ticket_use_case,
+    get_register_ticket_use_case,
+)
 from app.api.schemas.ticket import TicketCreateRequest, TicketResponse
-from app.application.usecases.register_ticket import (
+from app.application.usecases.cancel_ticket import (
+    CancelTicketUseCase,
+    EventAlreadyStartedError,
     EventNotFoundError,
+    TicketAlreadyCancelledError,
+    TicketNotFoundError,
+)
+from app.application.usecases.register_ticket import (
+    EventNotFoundError as RegistrationEventNotFoundError,
+)
+from app.application.usecases.register_ticket import (
     EventNotPublishedError,
     RegisterTicketUseCase,
     RegistrationDeadlinePassedError,
@@ -39,7 +52,7 @@ async def register_ticket(
             email=payload.email,
             seat=payload.seat,
         )
-    except EventNotFoundError as exc:
+    except RegistrationEventNotFoundError as exc:
         raise HTTPException(404, detail=str(exc)) from exc
     except EventNotPublishedError as exc:
         raise HTTPException(409, detail=str(exc)) from exc
@@ -54,3 +67,32 @@ async def register_ticket(
         ) from exc
 
     return TicketResponse(ticket_id=ticket_id)
+
+@router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def cancel_ticket(
+    ticket_id: UUID,
+    use_case: Annotated[
+        CancelTicketUseCase,
+        Depends(get_cancel_ticket_use_case),
+    ],
+) -> None:
+    try:
+        await use_case.execute(ticket_id)
+
+    except TicketNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    except EventNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    except TicketAlreadyCancelledError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    except EventAlreadyStartedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    except ExternalAPIError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="External events provider is unavailable",
+        ) from exc
