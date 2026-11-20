@@ -4,7 +4,10 @@ from uuid import UUID
 from app.domain.entities.ticket import Ticket
 from app.domain.unit_of_work import UnitOfWork
 from app.infrastructure.cache.ttl_cache import TTLCache
-from app.infrastructure.clients.external_api_client import ExternalAPIClient
+from app.infrastructure.clients.external_api_client import (
+    ExternalAPIClient,
+    ExternalAPIError,
+)
 
 
 class EventNotFoundError(Exception):
@@ -73,7 +76,19 @@ class RegisterTicketUseCase:
             },
         )
 
-        ticket_id = UUID(response["ticket_id"])
+        raw_ticket_id = response.get("ticket_id")
+
+        try:
+            ticket_id = UUID(str(raw_ticket_id))
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise ExternalAPIError(
+                "External API returned an invalid ticket ID"
+            ) from exc
+
+        if raw_ticket_id is None:
+            raise ExternalAPIError(
+                "External API response does not contain ticket_id"
+            )
 
         ticket = Ticket(
             id=ticket_id,
@@ -91,3 +106,4 @@ class RegisterTicketUseCase:
         self.cache.delete(event_id)
 
         return ticket_id
+
