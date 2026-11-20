@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from app.domain.enums import EventStatus
+
 import pytest
 
 from app.application.usecases.register_ticket import (
@@ -11,6 +11,7 @@ from app.application.usecases.register_ticket import (
     RegistrationDeadlinePassedError,
     SeatUnavailableError,
 )
+from app.domain.enums import EventStatus
 from app.infrastructure.clients.external_api_client import ExternalAPIError
 
 
