@@ -49,10 +49,9 @@ class ExternalAPIClient:
             ) from exc
 
         except httpx.RequestError as exc:
-            raise ExternalAPIError(f"External API request failed: {exc}") from exc
-
-        except ValueError as exc:
-            raise ExternalAPIError("External API returned invalid JSON") from exc
+            raise ExternalAPIError(
+                f"External API request failed: {type(exc).__name__}: {exc!r}"
+            ) from exc
 
     async def get(
         self,
