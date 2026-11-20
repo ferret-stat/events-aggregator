@@ -62,6 +62,7 @@ def get_event_seats_use_case(
         cache=seats_cache,
     )
 
+
 def get_register_ticket_use_case(
     uow: Annotated[SQLAlchemyUnitOfWork, Depends(get_uow)],
     api_client: Annotated[ExternalAPIClient, Depends(get_external_api_client)],
@@ -71,6 +72,7 @@ def get_register_ticket_use_case(
         api_client=api_client,
         cache=seats_cache,
     )
+
 
 def get_cancel_ticket_use_case(
     uow: Annotated[SQLAlchemyUnitOfWork, Depends(get_uow)],

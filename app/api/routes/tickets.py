@@ -68,6 +68,7 @@ async def register_ticket(
 
     return TicketResponse(ticket_id=ticket_id)
 
+
 @router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_ticket(
     ticket_id: UUID,
