@@ -10,6 +10,7 @@ from app.application.services.event_sync_service import EventSyncService
 @pytest.fixture
 def setup_sync_service():
     api_client = MagicMock()
+    api_client.base_url = "https://provider.example"
     api_client.get = AsyncMock()
 
     uow = MagicMock()

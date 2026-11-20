@@ -23,6 +23,7 @@ def cancel_dependencies():
     uow.events.get_by_id = AsyncMock()
 
     api_client = MagicMock()
+    api_client.base_url = "https://provider.example"
     api_client.unregister = AsyncMock(return_value={"success": True})
 
     cache = MagicMock()

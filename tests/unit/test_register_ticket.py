@@ -24,6 +24,7 @@ def register_dependencies():
     uow.tickets.create = AsyncMock()
 
     api_client = MagicMock()
+    api_client.base_url = "https://provider.example"
     api_client.get_seats = AsyncMock(return_value=["A1", "A2"])
     api_client.register = AsyncMock()
 
