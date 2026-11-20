@@ -26,6 +26,10 @@ class ExternalAPIClient:
             headers=headers,
         )
 
+    @property
+    def base_url(self) -> str:
+        return str(self._client.base_url)
+
     async def _request(
         self,
         method: str,
