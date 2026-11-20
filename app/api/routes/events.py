@@ -142,4 +142,7 @@ async def get_event_seats(
             detail="External events provider is unavailable",
         ) from exc
 
-    return EventSeatsResponse(seats=seats)
+    return EventSeatsResponse(
+        event_id=event_id,
+        available_seats=seats,
+    )
