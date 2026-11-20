@@ -1,29 +1,14 @@
 import logging
 from datetime import UTC, datetime
 from typing import Any
-from urllib.parse import urlsplit, urlunsplit
 
 from app.application.services.event_mapper import map_event
+from app.application.services.events_paginator import EventsPaginator
 from app.infrastructure.clients.external_api_client import ExternalAPIClient
 
 logger = logging.getLogger(__name__)
 
 INITIAL_CHANGED_AT = "2000-01-01"
-
-
-def normalize_pagination_url(url: str, base_url: str) -> str:
-    parsed_url = urlsplit(url)
-    parsed_base = urlsplit(base_url)
-
-    return urlunsplit(
-        (
-            parsed_base.scheme,
-            parsed_base.netloc,
-            parsed_url.path,
-            parsed_url.query,
-            parsed_url.fragment,
-        )
-    )
 
 
 class EventSyncService:
@@ -67,50 +52,18 @@ class EventSyncService:
                 else INITIAL_CHANGED_AT
             )
 
-            events = []
-            next_url = None
+            paginator = EventsPaginator(
+                api_client=self.api_client,
+                changed_at=changed_at,
+            )
 
-            # Получаем все страницы внешнего API.
-            while True:
-                if next_url:
-                    response = await self.api_client.get(
-                        normalize_pagination_url(
-                            next_url,
-                            self.api_client.base_url,
-                        )
-                    )
-                else:
-                    response = await self.api_client.get(
-                        "/api/events/",
-                        params={"changed_at": changed_at},
-                    )
-
-                if not isinstance(response, dict):
-                    raise ValueError("Expected an object from external API")
-
-                results = response.get("results")
-
-                if not isinstance(results, list):
-                    raise ValueError(
-                        "External API response does not contain a valid results list"
-                    )
-
-                events.extend(map_event(item) for item in results)
-
-                next_url = response.get("next")
-
-                if not next_url:
-                    break
-
-                if not isinstance(next_url, str):
-                    raise ValueError("Invalid pagination URL")
+            events = [map_event(item) async for item in paginator]
 
             latest_changed_at = max(
                 (event.changed_at for event in events),
                 default=checkpoint,
             )
 
-            # Сохраняем события и checkpoint атомарно.
             async with self.uow_factory() as uow:
                 for event in events:
                     await uow.events.upsert(event)
